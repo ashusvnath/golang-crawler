@@ -10,7 +10,7 @@ import (
 var shouldLog = false
 
 func init() {
-	flag.BoolVar(&shouldLog, "debug", false, "show logging output")
+	flag.BoolVar(&shouldLog, "log", false, "show logging output")
 	flag.Parse()
 	log.SetOutput(os.Stderr)
 }

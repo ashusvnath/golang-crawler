@@ -16,10 +16,8 @@ func main() {
 
 //Crawl all urls upto a depth using a fetcher
 func Crawl(url string, depth int, fetcher Fetcher) {
-	crawlerOutput := bytes.NewBuffer([]byte{})
+	crawlerOutput := new(bytes.Buffer)
 	crawler := NewCrawler(fetcher, crawlerOutput)
-
-	info("starting crawl")
 
 	crawler.Crawl(url, depth)
 	fmt.Printf("Crawl output: \n%v\n", crawlerOutput.String())
