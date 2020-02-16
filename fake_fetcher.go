@@ -15,3 +15,8 @@ func (f *fakeFetcher) Fetch(url string) (string, []string, error) {
 	}
 	return "", nil, fmt.Errorf("not found: %s", url)
 }
+
+//GoString returns a representation of fakeFetcher
+func (f *fakeFetcher) GoString() string {
+	return fmt.Sprintf("fakeFetcher{%v}", f)
+}

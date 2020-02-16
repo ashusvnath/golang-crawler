@@ -7,7 +7,7 @@ import (
 
 //GoString returns the string representation of crawler
 func (c *Crawler) GoString() string {
-	return fmt.Sprintf("Crawler{urlSource: %d, fetcher:%v}", len(c.urlSource), fetcher)
+	return fmt.Sprintf("Crawler{urlSource: %d, fetcher:%#v}", len(c.urlSource), c.fetcher)
 }
 
 //Crawler fetches urls using an assigned fetcher
@@ -35,7 +35,7 @@ func (c *Crawler) crawl(crawlData *crawlable) {
 		return
 	}
 
-	body, urls, err := fetcher.Fetch(crawlData.url)
+	body, urls, err := c.fetcher.Fetch(crawlData.url)
 	if err != nil {
 		fmt.Println(err)
 		return

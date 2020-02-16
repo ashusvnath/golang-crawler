@@ -1,9 +1,21 @@
 package main
 
-import "sync"
+import (
+	"fmt"
+	"sync"
+)
 
 type result struct {
 	fakeResult
+}
+
+//NewCachingFetcher returns a caching fetcher based on the specified fetcher
+func NewCachingFetcher(fetcher Fetcher) Fetcher {
+	return &CachingFetcher{
+		fetcher:     fetcher,
+		mutex:       &sync.Mutex{},
+		visitedUrls: make(map[string]*result),
+	}
 }
 
 //CachingFetcher caches data fetched by a fetcher
@@ -30,4 +42,9 @@ func (cf *CachingFetcher) Fetch(url string) (body string, urls []string, err err
 		}
 	}
 	return
+}
+
+//GoString returns a representation of CachingFetcher
+func (cf *CachingFetcher) GoString() string {
+	return fmt.Sprintf("CachingFetcher{visitedUrls: %v, fetcher: %#v}", cf.visitedUrls, cf.fetcher)
 }

@@ -1,9 +1,6 @@
 package main
 
-import (
-	"fmt"
-	"sync"
-)
+import "fmt"
 
 //Fetcher defines an interface for any object that fetches a web url
 type Fetcher interface {
@@ -11,18 +8,13 @@ type Fetcher interface {
 }
 
 func main() {
-	Crawl("https://golang.org/", 4, fetcher)
+	Crawl("https://golang.org/", 4, NewCachingFetcher(NewFetcher()))
 }
 
 //Crawl all urls upto a depth using a fetcher
 func Crawl(url string, depth int, fetcher Fetcher) {
-	crawler := NewCrawler(&CachingFetcher{
-		fetcher:     fetcher,
-		mutex:       &sync.Mutex{},
-		visitedUrls: make(map[string]*result),
-	})
+	crawler := NewCrawler(fetcher)
 	fmt.Printf("crawler: %#v\n", crawler)
 	crawler.urlSource <- crawlable{url, depth}
 	crawler.run()
 }
-
