@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"time"
 )
@@ -13,13 +14,15 @@ func (c *Crawler) GoString() string {
 //Crawler fetches urls using an assigned fetcher
 type Crawler struct {
 	fetcher   Fetcher
+	output    *bytes.Buffer
 	urlSource chan crawlable
 }
 
 //NewCrawler returns a crawler based on the given fetcher
-func NewCrawler(fetcher Fetcher) *Crawler {
+func NewCrawler(fetcher Fetcher, output *bytes.Buffer) *Crawler {
 	return &Crawler{
 		fetcher:   fetcher,
+		output:    output,
 		urlSource: make(chan crawlable, 1),
 	}
 }
@@ -30,19 +33,18 @@ type crawlable struct {
 }
 
 func (c *Crawler) visit(crawlData *crawlable) {
-	println(".", crawlData.depth)
+	infof("crawling %v at depth %v", crawlData.url, crawlData.depth)
 	if crawlData.depth < 0 {
-		c.urlSource <- crawlable{"does not matter", -1}
 		return
 	}
 
 	body, urls, err := c.fetcher.Fetch(crawlData.url)
 	if err != nil {
-		fmt.Println(err)
+		c.output.WriteString(err.Error() + "\n")
 		return
 	}
 
-	fmt.Printf("found: %s %q\n", crawlData.url, body)
+	c.output.WriteString(fmt.Sprintf("found at %s: %q\n", crawlData.url, body))
 	go func() {
 		for _, u := range urls {
 			c.urlSource <- crawlable{u, crawlData.depth - 1}
@@ -55,23 +57,23 @@ func (c *Crawler) visit(crawlData *crawlable) {
 //Crawl given url to specified depth
 func (c *Crawler) Crawl(url string, depth int) {
 	c.urlSource <- crawlable{url, depth}
-	c.do()
+	c.crawl()
 }
 
-func (c *Crawler) do() {
+func (c *Crawler) crawl() {
 	shouldRun := true
 	for shouldRun {
 		select {
 		case cData := <-c.urlSource:
 			if cData.depth == -1 {
-				fmt.Println("Stopping crawl")
+				info("stopping crawl")
 				shouldRun = false
 				break
 			}
 			c.visit(&cData)
 		default:
-			fmt.Printf("crawler: %#v\n", c)
-			time.Sleep(5)
+			tracef("crawler: %#v", c)
+			time.Sleep(1)
 		}
 	}
 }

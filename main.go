@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"bytes"
+	"fmt"
+)
 
 //Fetcher defines an interface for any object that fetches a web url
 type Fetcher interface {
@@ -13,7 +16,11 @@ func main() {
 
 //Crawl all urls upto a depth using a fetcher
 func Crawl(url string, depth int, fetcher Fetcher) {
-	crawler := NewCrawler(fetcher)
-	fmt.Printf("crawler: %#v\n", crawler)
+	crawlerOutput := bytes.NewBuffer([]byte{})
+	crawler := NewCrawler(fetcher, crawlerOutput)
+
+	info("starting crawl")
+
 	crawler.Crawl(url, depth)
+	fmt.Printf("Crawl output: \n%v\n", crawlerOutput.String())
 }
