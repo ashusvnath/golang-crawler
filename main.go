@@ -15,6 +15,5 @@ func main() {
 func Crawl(url string, depth int, fetcher Fetcher) {
 	crawler := NewCrawler(fetcher)
 	fmt.Printf("crawler: %#v\n", crawler)
-	crawler.urlSource <- crawlable{url, depth}
-	crawler.run()
+	crawler.Crawl(url, depth)
 }

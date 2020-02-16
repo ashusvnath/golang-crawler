@@ -29,7 +29,7 @@ type crawlable struct {
 	depth int
 }
 
-func (c *Crawler) crawl(crawlData *crawlable) {
+func (c *Crawler) visit(crawlData *crawlable) {
 	println(".")
 	if crawlData.depth <= 0 {
 		return
@@ -51,7 +51,13 @@ func (c *Crawler) crawl(crawlData *crawlable) {
 	return
 }
 
-func (c *Crawler) run() {
+//Crawl given url to specified depth
+func (c *Crawler) Crawl(url string, depth int) {
+	c.urlSource <- crawlable{url, depth}
+	c.do()
+}
+
+func (c *Crawler) do() {
 	shouldRun := true
 	for shouldRun {
 		select {
@@ -60,7 +66,7 @@ func (c *Crawler) run() {
 				shouldRun = false
 				break
 			}
-			c.crawl(&cData)
+			c.visit(&cData)
 		default:
 			time.Sleep(5)
 		}
