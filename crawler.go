@@ -65,7 +65,7 @@ func (c *Crawler) crawl() {
 	for shouldRun {
 		select {
 		case cData := <-c.urlSource:
-			if cData.depth == -1 {
+			if cData.depth == 0 {
 				info("stopping crawl")
 				shouldRun = false
 				break

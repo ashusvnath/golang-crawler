@@ -10,7 +10,7 @@ import (
 var shouldLog = false
 
 func init() {
-	flag.BoolVar(&shouldLog, "log", false, "show logging output")
+	flag.BoolVar(&shouldLog, "log", false, "show internal actions")
 	flag.Parse()
 	log.SetOutput(os.Stderr)
 }

@@ -1,6 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"math/rand"
+	"time"
+)
 
 type fakeFetcher map[string]*fakeResult
 
@@ -10,6 +14,7 @@ type fakeResult struct {
 }
 
 func (f *fakeFetcher) Fetch(url string) (string, []string, error) {
+	time.Sleep(time.Duration(rand.Intn(10)) * time.Second)
 	if res, ok := (*f)[url]; ok {
 		return res.body, res.urls, nil
 	}
