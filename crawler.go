@@ -2,8 +2,15 @@ package main
 
 import (
 	"bytes"
+	"flag"
 	"fmt"
 )
+
+var crawlQueueSize = 1
+
+func init() {
+	flag.IntVar(&crawlQueueSize, "qlen", 1, "Size of crawl queue")
+}
 
 //GoString returns the string representation of crawler
 func (c *Crawler) GoString() string {
@@ -22,7 +29,7 @@ func NewCrawler(fetcher Fetcher, output *bytes.Buffer) *Crawler {
 	return &Crawler{
 		fetcher:   fetcher,
 		output:    output,
-		urlSource: make(chan crawlable, 1),
+		urlSource: make(chan crawlable, crawlQueueSize),
 	}
 }
 

@@ -8,8 +8,10 @@ import (
 )
 
 var maxDelaySeconds = 10
+var randomizeDelay = false
 
 func init() {
+	flag.BoolVar(&randomizeDelay, "randomize", false, "Simulate randomized fetch delays")
 	flag.IntVar(&maxDelaySeconds, "max-delay", 10, "Maximum delay in seconds for simulation")
 }
 
@@ -21,7 +23,9 @@ type fakeResult struct {
 }
 
 func (f *fakeFetcher) Fetch(url string) (string, []string, error) {
-	time.Sleep(time.Duration(rand.Intn(10)) * time.Second)
+	if randomizeDelay {
+		time.Sleep(time.Duration(rand.Intn(10)) * time.Second)
+	}
 	if res, ok := (*f)[url]; ok {
 		return res.body, res.urls, nil
 	}
