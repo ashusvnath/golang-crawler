@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"flag"
 	"fmt"
 )
@@ -9,7 +8,7 @@ import (
 var crawlQueueSize = 1
 
 func init() {
-	flag.IntVar(&crawlQueueSize, "qlen", 1, "Size of crawl queue")
+	flag.IntVar(&crawlQueueSize, "blen", 1, "Size of crawlable buffer")
 }
 
 //GoString returns the string representation of crawler
@@ -20,12 +19,12 @@ func (c *Crawler) GoString() string {
 //Crawler fetches urls using an assigned fetcher
 type Crawler struct {
 	fetcher   Fetcher
-	output    *bytes.Buffer
+	output    chan string
 	urlSource chan crawlable
 }
 
 //NewCrawler returns a crawler based on the given fetcher
-func NewCrawler(fetcher Fetcher, output *bytes.Buffer) *Crawler {
+func NewCrawler(fetcher Fetcher, output chan string) *Crawler {
 	return &Crawler{
 		fetcher:   fetcher,
 		output:    output,
@@ -40,17 +39,14 @@ type crawlable struct {
 
 func (c *Crawler) visit(crawlData *crawlable) {
 	infof("crawling %v at depth %v", crawlData.url, crawlData.depth)
-	if crawlData.depth < 0 {
-		return
-	}
 
 	body, urls, err := c.fetcher.Fetch(crawlData.url)
 	if err != nil {
-		c.output.WriteString(err.Error() + "\n")
+		c.output <- err.Error()
 		return
 	}
 
-	c.output.WriteString(fmt.Sprintf("found at %s: %q\n", crawlData.url, body))
+	c.output <- fmt.Sprintf("found at %s: %q\n", crawlData.url, body)
 	go func() {
 		for _, u := range urls {
 			c.urlSource <- crawlable{u, crawlData.depth - 1}

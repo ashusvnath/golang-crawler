@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"flag"
 	"fmt"
 	"math/rand"
@@ -24,9 +23,12 @@ func main() {
 
 //Crawl all urls upto a depth using a fetcher
 func Crawl(url string, depth int, fetcher Fetcher) {
-	crawlerOutput := new(bytes.Buffer)
-	crawler := NewCrawler(fetcher, crawlerOutput)
-
+	outputs := make(chan string, 1)
+	crawler := NewCrawler(fetcher, outputs)
+	go func() {
+		for output := range outputs {
+			fmt.Println(output)
+		}
+	}()
 	crawler.Crawl(url, depth)
-	fmt.Printf("Crawl output: \n%v\n", crawlerOutput.String())
 }
