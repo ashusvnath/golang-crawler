@@ -6,9 +6,11 @@ import (
 )
 
 var crawlQueueSize = 1
+var visitAsync = false
 
 func init() {
 	flag.IntVar(&crawlQueueSize, "blen", 1, "Size of crawlable buffer")
+	flag.BoolVar(&visitAsync, "aVis", false, "Visit urls asynchronously")
 }
 
 //GoString returns the string representation of crawler
@@ -74,7 +76,12 @@ func (c *Crawler) crawl(done chan int) {
 				shouldRun = false
 				break
 			}
-			go c.visit(&cData)
+			if visitAsync {
+				go c.visit(&cData)
+			} else {
+				c.visit(&cData)
+			}
+
 		}
 	}
 	debugf("crawler: %#v", c)
