@@ -20,7 +20,7 @@ type Crawler struct {
 func NewCrawler(fetcher Fetcher) *Crawler {
 	return &Crawler{
 		fetcher:   fetcher,
-		urlSource: make(chan crawlable),
+		urlSource: make(chan crawlable, 1),
 	}
 }
 
@@ -30,8 +30,9 @@ type crawlable struct {
 }
 
 func (c *Crawler) visit(crawlData *crawlable) {
-	println(".")
-	if crawlData.depth <= 0 {
+	println(".", crawlData.depth)
+	if crawlData.depth < 0 {
+		c.urlSource <- crawlable{"does not matter", -1}
 		return
 	}
 
@@ -63,17 +64,14 @@ func (c *Crawler) do() {
 		select {
 		case cData := <-c.urlSource:
 			if cData.depth == -1 {
+				fmt.Println("Stopping crawl")
 				shouldRun = false
 				break
 			}
 			c.visit(&cData)
 		default:
+			fmt.Printf("crawler: %#v\n", c)
 			time.Sleep(5)
 		}
 	}
-	hasRemaining := true
-	for hasRemaining {
-		_, hasRemaining = <-c.urlSource
-	}
-	close(c.urlSource)
 }

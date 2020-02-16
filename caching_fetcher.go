@@ -30,12 +30,13 @@ func (cf *CachingFetcher) Fetch(url string) (body string, urls []string, err err
 	cf.mutex.Lock()
 	defer cf.mutex.Unlock()
 	if r, ok := cf.visitedUrls[url]; ok {
+		print("Cache hit: ")
 		return r.body, r.urls, nil
 	}
 
 	body, urls, err = cf.fetcher.Fetch(url)
 
-	if err != nil {
+	if err == nil {
 		cf.visitedUrls[url] = &result{
 			fakeResult{body,
 				urls},
