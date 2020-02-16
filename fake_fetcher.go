@@ -1,10 +1,17 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"math/rand"
 	"time"
 )
+
+var maxDelaySeconds = 10
+
+func init() {
+	flag.IntVar(&maxDelaySeconds, "max-delay", 10, "Maximum delay in seconds for simulation")
+}
 
 type fakeFetcher map[string]*fakeResult
 

@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"time"
 )
 
 //GoString returns the string representation of crawler
@@ -57,10 +56,12 @@ func (c *Crawler) visit(crawlData *crawlable) {
 //Crawl given url to specified depth
 func (c *Crawler) Crawl(url string, depth int) {
 	c.urlSource <- crawlable{url, depth}
-	c.crawl()
+	done := make(chan int)
+	go c.crawl(done)
+	<-done
 }
 
-func (c *Crawler) crawl() {
+func (c *Crawler) crawl(done chan int) {
 	shouldRun := true
 	for shouldRun {
 		select {
@@ -70,10 +71,9 @@ func (c *Crawler) crawl() {
 				shouldRun = false
 				break
 			}
-			c.visit(&cData)
-		default:
-			tracef("crawler: %#v", c)
-			time.Sleep(1)
+			go c.visit(&cData)
 		}
 	}
+	debugf("crawler: %#v", c)
+	done <- 1
 }

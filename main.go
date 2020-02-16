@@ -2,12 +2,17 @@ package main
 
 import (
 	"bytes"
+	"flag"
 	"fmt"
 )
 
 //Fetcher defines an interface for any object that fetches a web url
 type Fetcher interface {
 	Fetch(url string) (body string, urls []string, err error)
+}
+
+func init() {
+	flag.Parse()
 }
 
 func main() {
