@@ -27,10 +27,13 @@ type CachingFetcher struct {
 
 //Fetch caches successfully fetched data from the given url
 func (cf *CachingFetcher) Fetch(url string) (body string, urls []string, err error) {
-	trace("waiting for lock")
-	cf.mutex.Lock()
-	trace("lock acquired")
-	defer cf.mutex.Unlock()
+	if visitAsync {
+		trace("waiting for lock")
+		cf.mutex.Lock()
+		trace("lock acquired")
+		defer cf.mutex.Unlock()
+	}
+
 	if r, ok := cf.visitedUrls[url]; ok {
 		debugf("cache hit: %v", url)
 		return r.body, r.urls, nil
